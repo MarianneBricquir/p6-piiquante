@@ -44,23 +44,23 @@ exports.modifySauce = (req, res, next) => {
 
 // fonction pour la suppression d'une sauce (DELETE)
 exports.deleteSauce = (req, res, next) => {
-    Sauce.findOne({ _id: req.params.id})
+    Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
             if (sauce.userId != req.auth.userId) {
-                res.status(401).json({message: 'Not authorized'});
+                res.status(401).json({ message: 'Not authorized' });
             } else {
                 const filename = sauce.imageUrl.split('/images/')[1];
                 fs.unlink(`images/${filename}`, () => {
-                    Sauce.deleteOne({_id: req.params.id})
-                        .then(() => { res.status(200).json({message: 'Sauce supprimée !'})})
+                    Sauce.deleteOne({ _id: req.params.id })
+                        .then(() => { res.status(200).json({ message: 'Sauce supprimée !' }) })
                         .catch(error => res.status(401).json({ error }));
                 });
             }
         })
-        .catch( error => {
+        .catch(error => {
             res.status(500).json({ error });
         });
- };
+};
 
 // fonction pour avoir une sauce avec son id (GET)
 exports.getOneSauce = (req, res, next) => {
@@ -90,7 +90,7 @@ exports.likeUser = (req, res, next) => {
     Sauce.findOne(({ _id: req.params.id }))
         .then(sauce => {
             //res.status(200).json(sauce);
-            switch (req.body.likes) {
+            switch (req.body.like) {
                 case 1:
                     // like = 1 (like +1)
                     if (!sauce.usersLiked.includes(req.body.userId)) {
@@ -104,7 +104,7 @@ exports.likeUser = (req, res, next) => {
                             .then(() => res.status(201).json({ message: "Un like de plus pour la sauce !" })) // created
                             // error bad request
                             .catch(error => res.status(400).json({ error }))
-                    } ;
+                    };
                     break;
 
                 // like = -1 (dislikes = +1)
