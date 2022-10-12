@@ -22,15 +22,15 @@ exports.createSauce = (req, res, next) => {
 
 // fonction pour la modification d'une sauce (PUT)
 exports.modifySauce = (req, res, next) => {
-    const sauceObject = req.file ? {
+    const sauceObject = req.file ? { // l'utilisateur a mis à jour l'image ou non ? 
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
-    delete sauceObject._userId; // mesure de sécurité
+    delete sauceObject._userId; // mesure de sécurité pour éviter que quelqu'un créé une sauce et la ré-assigne à quelqu'un d'autre
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
-            if (sauce.userId != req.auth.userId) {
-                res.status(400).json({ message: "Non-autorisé" });
+            if (sauce.userId != req.auth.userId) { // on vérifie que le userId enregistré en base correspond bien au userId que l'on récupère du token.
+                res.status(403).json({ message: "Non-autorisé" });
             } else {
                 Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
                     .then(() => res.status(200).json({ message: 'Sauce modifiée !' }))
@@ -46,12 +46,12 @@ exports.modifySauce = (req, res, next) => {
 exports.deleteSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
-            if (sauce.userId != req.auth.userId) {
-                res.status(401).json({ message: 'Not authorized' });
+            if (sauce.userId != req.auth.userId) { // on vérifie que le userId enregistré en base correspond bien au userId que l'on récupère du token.
+                res.status(403).json({ message: 'Not authorized' });
             } else {
-                const filename = sauce.imageUrl.split('/images/')[1];
-                fs.unlink(`images/${filename}`, () => {
-                    Sauce.deleteOne({ _id: req.params.id })
+                const filename = sauce.imageUrl.split('/images/')[1]; // on récupère le nom de fichier (nom de fichier juste après le chemin du dossier images)
+                fs.unlink(`images/${filename}`, () => { // méthode unlink du package fs
+                    Sauce.deleteOne({ _id: req.params.id }) // on supprime l'enregistrement dans la base de donnée
                         .then(() => { res.status(200).json({ message: 'Sauce supprimée !' }) })
                         .catch(error => res.status(401).json({ error }));
                 });
@@ -80,13 +80,6 @@ exports.getAllSauces = (req, res, next) => {
 
 // fonction pour gérer les likes / dislikes (POST)
 exports.likeUser = (req, res, next) => {
-    // console.log("je suis dans le controller like")
-    // affichage du req.body
-    //console.log("Contenu req.body - ctrl like")
-    //console.log(req.body)
-    //console.log("Contenu req.params - ctrl like = id de la sauce")
-    //console.log({_id : req.params.id})
-
     Sauce.findOne(({ _id: req.params.id }))
         .then(sauce => {
             //res.status(200).json(sauce);

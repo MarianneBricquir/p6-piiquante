@@ -1,3 +1,3 @@
 node_modules
-images
-mdp.js
+images/*
+.env

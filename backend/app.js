@@ -1,17 +1,18 @@
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
-const mdp = require('./mdp')
+
+const app = express(); // méthode express qui permet de créer une application express
+
+require("dotenv").config();
 
 // import des routers
-//const saucesRoutes = require('./routes/sauces');
 const sauceRoutes = require('./routes/sauces');
 const userRoutes = require('./routes/user');
 const path = require('path');
 
 
 // Connection à la bd sur MongoDB
-mongoose.connect(`mongodb+srv://piiquante-user:${mdp}@cluster0.eriumea.mongodb.net/test`,
+mongoose.connect(`mongodb+srv://piiquante-user:${process.env.mdp}@cluster0.eriumea.mongodb.net/test`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -20,7 +21,7 @@ mongoose.connect(`mongodb+srv://piiquante-user:${mdp}@cluster0.eriumea.mongodb.n
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 
-// CORS
+// CORS - Pour que les utilisateurs puissent réaliser les requêtes nécessaire pour accéder à l'API
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
@@ -28,14 +29,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// intercepte les req qui contiennent du json
+// intercepte les req qui contiennent du json lors d'une requête POST réalisée par l'utilisateur
 app.use(express.json())
 
-
-
-// enregistrer les routes ici
+// enregistrement des routes
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, 'images'))); // route avec middleware static qui est founri par express. On obtient le chemin complet sur le disque
 
 module.exports = app;

@@ -5,7 +5,6 @@ const router = express.Router();
 
 
 const sauceCtrl = require('../controllers/sauces');
-//const likeCtrl = require('../controllers/like');
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
 
@@ -15,10 +14,10 @@ router.post('/', auth, multer, sauceCtrl.createSauce);
 router.put('/:id', auth, multer, sauceCtrl.modifySauce);
 // route delete pour permettre la suppression d'un objet
 router.delete('/:id', auth, sauceCtrl.deleteSauce);
-// route get pour récupérer un article spécifique
-router.get('/:id', auth, sauceCtrl.getOneSauce );
-// route get pour récupérer tous les sauces
-router.get('/', auth, sauceCtrl.getAllSauces );
+// route get pour récupérer une sauce spécifique
+router.get('/:id', auth, sauceCtrl.getOneSauce);
+// route get pour récupérer toutes les sauces
+router.get('/', auth, sauceCtrl.getAllSauces);
 // route pour la gestion des likes/dislikes
 router.post('/:id/like', auth, sauceCtrl.likeUser);
 
